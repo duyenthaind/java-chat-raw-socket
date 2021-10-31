@@ -15,8 +15,8 @@ public class ClientHandler implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger("ClientHandler");
 
-    BufferedReader bufferedReader;
-    Socket socket;
+    private BufferedReader bufferedReader;
+    private Socket socket;
 
 
     public ClientHandler(Socket socket) {
@@ -34,7 +34,7 @@ public class ClientHandler implements Runnable {
         String message;
         try {
             while ((message = bufferedReader.readLine()) != null) {
-                LOGGER.log(Level.INFO, "read " + message);
+                LOGGER.log(Level.INFO, String.format("read %s", message));
                 flushMsgToAllMember(message);
             }
         } catch (Exception ex) {
@@ -42,14 +42,14 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void flushMsgToAllMember(String message){
-        Iterator iterator = SimpleChatServer.clientOutPutStream.iterator();
-        while(iterator.hasNext()){
-            try{
+    public void flushMsgToAllMember(String message) {
+        Iterator iterator = SimpleChatServer.CLIENT_OUTPUT_STREAMS.iterator();
+        while (iterator.hasNext()) {
+            try {
                 PrintWriter printWriter = (PrintWriter) iterator.next();
                 printWriter.println(message);
                 printWriter.flush();
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Error while sending msg to all client ", ex);
             }
 

@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 public class IncomingReaderHandler implements Runnable {
     private static final Logger LOGGER = Logger.getLogger("IncomingReaderHandler");
 
-    private BufferedReader bufferedReader;
-    private JTextArea incoming;
+    private final BufferedReader bufferedReader;
+    private final JTextArea incoming;
 
     public IncomingReaderHandler(Builder builder) {
         this.bufferedReader = builder.bufferedReader;
@@ -26,7 +26,7 @@ public class IncomingReaderHandler implements Runnable {
 
         try {
             while ((message = bufferedReader.readLine()) != null) {
-                LOGGER.log(Level.INFO, "read " + message);
+                LOGGER.log(Level.INFO, String.format("read %s", message));
                 incoming.append(message + "\n");
             }
         } catch (Exception ex) {

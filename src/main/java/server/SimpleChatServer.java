@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,28 +17,34 @@ import java.util.logging.Logger;
  */
 public class SimpleChatServer {
     private static final Logger LOGGER = Logger.getLogger("SimpleChatServer");
-    public static List clientOutPutStream;
+    public static final List<PrintWriter> CLIENT_OUTPUT_STREAMS = new CopyOnWriteArrayList<>();
 
-    public void start(){
-        clientOutPutStream = new ArrayList();
-        try{
-            ServerSocket serverSocket = new ServerSocket(Config.PORT);
+    private boolean isRunning = true;
 
-            LOGGER.log(Level.INFO, "Init simpleChatServer, listening to connections");
+    public void start() {
+        try {
+            try (ServerSocket serverSocket = new ServerSocket(Config.PORT)) {
 
-            while(true){
-                Socket clientSocket = serverSocket.accept();
-                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
-                clientOutPutStream.add(writer);
+                LOGGER.log(Level.INFO, String.format("Init simpleChatServer at %s, listening to connections", new Date()));
 
-                Thread client = new Thread(new ClientHandler(clientSocket));
-                client.start();
-                LOGGER.log(Level.INFO, "New connection, socket: " + clientSocket);
+                while (isRunning) {
+                    Socket clientSocket = serverSocket.accept();
+                    PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
+                    CLIENT_OUTPUT_STREAMS.add(writer);
+
+                    Thread client = new Thread(new ClientHandler(clientSocket));
+                    client.start();
+                    LOGGER.log(Level.INFO, String.format("New connection, socket: %s", clientSocket));
+                }
             }
 
-        } catch (Exception ex){
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, String.format("Init server via socket error, time %s, port %s", new Date(), Config.PORT), ex);
         }
+    }
+
+    public void stop() {
+        this.isRunning = false;
     }
 
     public static void main(String[] args) {

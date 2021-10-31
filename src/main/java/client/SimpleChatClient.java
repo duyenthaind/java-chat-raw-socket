@@ -56,8 +56,9 @@ public class SimpleChatClient {
         client.start();
 
         jFrame.getContentPane().add(BorderLayout.CENTER, mainPanel);
-        jFrame.setSize(400, 500);
+        jFrame.setSize(600, 500);
         jFrame.setVisible(true);
+        jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void setUpNetWorking() {
